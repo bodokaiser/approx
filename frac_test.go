@@ -4,39 +4,74 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestContFrac(t *testing.T) {
-	cf1 := ContFrac{1, 2}
-	assert.Equal(t, 1.5, cf1.Float())
+type ContFracSuite struct {
+	suite.Suite
 
-	cf2 := ContFrac{4, 2, 6, 7}
-	assert.InEpsilon(t, 415.0/93.0, cf2.Float(), 1e-6)
-
-	cf3 := ContFrac{3, 4, 12, 4}
-	assert.InEpsilon(t, 3.245, cf3.Float(), 1e-6)
+	cf1 ContFrac
+	cf2 ContFrac
+	cf3 ContFrac
+	cf4 ContFrac
+	cf5 ContFrac
 }
 
-func TestContFracConvergent(t *testing.T) {
-	cf := ContFrac{0, 1, 5, 2, 2}
+func (s *ContFracSuite) SetupTest() {
+	s.cf1 = ContFrac{1, 2}
+	s.cf2 = ContFrac{4, 2, 6, 7}
+	s.cf3 = ContFrac{3, 4, 12, 4}
+	s.cf4 = ContFrac{0, 1, 5, 2, 2}
+	s.cf5 = ContFrac{3, 7, 15, 1}
+}
 
-	p0, q0 := cf.Convergent(0)
-	assert.Equal(t, uint(0), p0)
-	assert.Equal(t, uint(1), q0)
+func (s *ContFracSuite) TestFloat() {
+	assert.Equal(s.T(), 1.5, s.cf1.Float())
+	assert.InEpsilon(s.T(), 415.0/93.0, s.cf2.Float(), 1e-6)
+	assert.InEpsilon(s.T(), 3.245, s.cf3.Float(), 1e-6)
+}
 
-	p1, q1 := cf.Convergent(1)
-	assert.Equal(t, uint(1), p1)
-	assert.Equal(t, uint(1), q1)
+func (s *ContFracSuite) TestNew() {
+	cf := NewContFrac(0.84375)
+	assert.Equal(s.T(), s.cf4, cf)
+}
 
-	p2, q2 := cf.Convergent(2)
-	assert.Equal(t, uint(5), p2)
-	assert.Equal(t, uint(6), q2)
+func (s *ContFracSuite) TestConvergent() {
+	p0, q0 := s.cf4.Convergent(0)
+	assert.Equal(s.T(), uint(0), p0)
+	assert.Equal(s.T(), uint(1), q0)
 
-	p3, q3 := cf.Convergent(3)
-	assert.Equal(t, uint(11), p3)
-	assert.Equal(t, uint(13), q3)
+	p1, q1 := s.cf4.Convergent(1)
+	assert.Equal(s.T(), uint(1), p1)
+	assert.Equal(s.T(), uint(1), q1)
 
-	p4, q4 := cf.Convergent(4)
-	assert.Equal(t, uint(27), p4)
-	assert.Equal(t, uint(32), q4)
+	p2, q2 := s.cf4.Convergent(2)
+	assert.Equal(s.T(), uint(5), p2)
+	assert.Equal(s.T(), uint(6), q2)
+
+	p3, q3 := s.cf4.Convergent(3)
+	assert.Equal(s.T(), uint(11), p3)
+	assert.Equal(s.T(), uint(13), q3)
+
+	p4, q4 := s.cf4.Convergent(4)
+	assert.Equal(s.T(), uint(27), p4)
+	assert.Equal(s.T(), uint(32), q4)
+
+	p, q := s.cf5.Convergent(3)
+	assert.Equal(s.T(), uint(355), p)
+	assert.Equal(s.T(), uint(113), q)
+}
+
+func (s *ContFracSuite) TestRatio() {
+	p, q := s.cf4.Ratio()
+	assert.Equal(s.T(), uint(27), p)
+	assert.Equal(s.T(), uint(32), q)
+}
+
+func (s *ContFracSuite) TestRatioLimited() {
+
+}
+
+func TestContFracTestSuite(t *testing.T) {
+	suite.Run(t, new(ContFracSuite))
 }
