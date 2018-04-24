@@ -1,6 +1,7 @@
 package approx
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -78,6 +79,27 @@ func (s *ContFracSuite) TestRatioConstr2() {
 	p, q := s.cf4.RatioConstr2(30, 20)
 	assert.Equal(s.T(), uint(11), p)
 	assert.Equal(s.T(), uint(13), q)
+}
+
+func TestRatio(t *testing.T) {
+	p, q := Ratio(1 / math.Pi)
+	assert.Equal(t, 1/math.Pi, float64(p)/float64(q))
+}
+
+func TestRatioConstr(t *testing.T) {
+	p, q := RatioConstr(1/math.Pi, 92000)
+	assert.True(t, q < 92000)
+	assert.Equal(t, uint(113), p)
+	assert.Equal(t, uint(355), q)
+	assert.InEpsilon(t, 1/math.Pi, float64(p)/float64(q), 1e-7)
+}
+
+func TestRatioConstr2(t *testing.T) {
+	p, q := RatioConstr2(1/math.Pi, 1<<32-1, 1<<16-1)
+
+	assert.True(t, q < 1<<32-1)
+	assert.True(t, p < 1<<16-1)
+	assert.InEpsilon(t, 1/math.Pi, float64(p)/float64(q), 1e-9)
 }
 
 func TestContFracTestSuite(t *testing.T) {

@@ -59,10 +59,10 @@ func (f ContFrac) Ratio() (uint, uint) {
 	return f.Convergent(len(f) - 1)
 }
 
-func (f ContFrac) RatioConstr(kmax uint) (p uint, q uint) {
+func (f ContFrac) RatioConstr(dmax uint) (p uint, q uint) {
 	k := 0
 
-	for q <= kmax {
+	for q <= dmax {
 		k++
 
 		p, q = f.Convergent(k)
@@ -71,14 +71,25 @@ func (f ContFrac) RatioConstr(kmax uint) (p uint, q uint) {
 	return f.Convergent(k - 1)
 }
 
-func (f ContFrac) RatioConstr2(kmax, hmax uint) (p uint, q uint) {
+func (f ContFrac) RatioConstr2(dmax, nmax uint) (p uint, q uint) {
 	k := 0
 
-	for q <= kmax && p <= hmax {
+	for q <= dmax && p <= nmax {
 		k++
-
 		p, q = f.Convergent(k)
 	}
 
 	return f.Convergent(k - 1)
+}
+
+func Ratio(x float64) (uint, uint) {
+	return NewContFrac(x).Ratio()
+}
+
+func RatioConstr(x float64, dmax uint) (uint, uint) {
+	return NewContFrac(x).RatioConstr(dmax)
+}
+
+func RatioConstr2(x float64, dmax, nmax uint) (uint, uint) {
+	return NewContFrac(x).RatioConstr2(dmax, nmax)
 }
