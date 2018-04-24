@@ -4,8 +4,12 @@ import (
 	"math"
 )
 
+// ContFrac is a continued fraction representation.
+//
+// [a0; a1, a2, a3] is the same as ContFrac{a0, a1, a2, a3}.
 type ContFrac []uint
 
+// NewContFrac creates a continued fraction representation from a float.
 func NewContFrac(x float64) (f ContFrac) {
 	var dividend float64
 	var divisor, remainder float64 = x, 1
@@ -21,6 +25,7 @@ func NewContFrac(x float64) (f ContFrac) {
 	return f
 }
 
+// Float returns float representation of a continued fraction.
 func (f ContFrac) Float() float64 {
 	if len(f) == 0 {
 		return 0
@@ -32,6 +37,9 @@ func (f ContFrac) Float() float64 {
 	return float64(f[0]) + 1/f[1:].Float()
 }
 
+// Convergent returns the k-th convergent.
+//
+// Definitions about the convergent may differ and have offset 1.
 func (f ContFrac) Convergent(k int) (p uint, q uint) {
 	if k == -1 {
 		p, q = 1, 0
@@ -55,41 +63,59 @@ func (f ContFrac) Convergent(k int) (p uint, q uint) {
 
 	return
 }
+
+// Ratio returns an integer ratio with value equal to the continued fraction.
 func (f ContFrac) Ratio() (uint, uint) {
 	return f.Convergent(len(f) - 1)
 }
 
+// RatioConstr is like Ratio but constraints the denumerator to be less than
+// dmax.
 func (f ContFrac) RatioConstr(dmax uint) (p uint, q uint) {
-	k := 0
+	var np, nq uint
 
-	for q <= dmax {
-		k++
-
-		p, q = f.Convergent(k)
+	for k := 0; k < len(f); k++ {
+		np, nq = f.Convergent(k)
+		if nq > dmax {
+			break
+		} else {
+			p, q = np, nq
+		}
 	}
 
-	return f.Convergent(k - 1)
+	return
 }
 
+// RatioConstr2 is like Ratio but constraints the denumerator to be less than
+// dmax and the numerator less than nmax.
 func (f ContFrac) RatioConstr2(dmax, nmax uint) (p uint, q uint) {
-	k := 0
+	var np, nq uint
 
-	for q <= dmax && p <= nmax {
-		k++
-		p, q = f.Convergent(k)
+	for k := 0; k < len(f); k++ {
+		np, nq = f.Convergent(k)
+		if nq > dmax || np > nmax {
+			break
+		} else {
+			p, q = np, nq
+		}
 	}
 
-	return f.Convergent(k - 1)
+	return
 }
 
+// Ratio returns a integer ratio with the same value as x.
 func Ratio(x float64) (uint, uint) {
 	return NewContFrac(x).Ratio()
 }
 
+// RatioConstr returns a integer ratio with the same value as x but with the
+// denumerator being less than dmax.
 func RatioConstr(x float64, dmax uint) (uint, uint) {
 	return NewContFrac(x).RatioConstr(dmax)
 }
 
+// RatioConstr2 returns a integer ratio with the same value as x but with the
+// denumerator being less than dmax and the numerator being less than nmax.
 func RatioConstr2(x float64, dmax, nmax uint) (uint, uint) {
 	return NewContFrac(x).RatioConstr2(dmax, nmax)
 }
