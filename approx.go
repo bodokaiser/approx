@@ -7,7 +7,7 @@ func PartialQuotients(a, b uint) (f ContFrac) {
 		dividend = divisor
 		divisor = remainder
 
-		f = append(f, uint64(dividend/divisor))
+		f = append(f, dividend/divisor)
 		remainder = dividend % divisor
 	}
 
